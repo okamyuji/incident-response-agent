@@ -5,6 +5,19 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 REGION="${AWS_REGION:-us-east-1}"
 
+# terraform destroy は aws_lambda_function.source_code_hash=filebase64sha256(...) を
+# 評価するため、ローカルに zip が無いと "no such file or directory" で手詰まりになる。
+# apply 後に lambda/dist を消していた場合に備えて、destroy 前に必ず zip を再生成しておく。
+echo "[0/3] Ensuring Lambda artifacts exist for destroy..."
+if [ ! -f "$ROOT/lambda/dist/triage-haiku.zip" ] \
+  || [ ! -f "$ROOT/lambda/dist/investigate-sonnet.zip" ] \
+  || [ ! -f "$ROOT/lambda/dist/rca-opus.zip" ]; then
+  echo "  zips missing, rebuilding via pnpm package..."
+  cd "$ROOT/lambda" && pnpm install --frozen-lockfile=false >/dev/null && pnpm package >/dev/null
+else
+  echo "  zips present, skipping rebuild"
+fi
+
 cd "$ROOT/terraform/envs/dev"
 
 echo "[1/3] terraform destroy..."
