@@ -11,9 +11,12 @@ export interface InvestigateDeps {
   guardrailVersion?: string;
 }
 
-const SYSTEM_PROMPT = `You are a senior SRE. Given triage results and recent error logs,
-produce at most 3 concrete hypotheses for the root cause. Respond ONLY with JSON:
-{"hypotheses":["hypothesis 1","hypothesis 2"]}`;
+const SYSTEM_PROMPT = `あなたはシニア SRE です。トリアージ結果と直近のエラーログを元に、
+根本原因として考えられる仮説を最大 3 件まで、日本語で具体的に列挙してください。
+技術用語（chaos_type、IAM、CloudWatch などのサービス名やフィールド名）は英語のままで OK です。
+以下の JSON のみ返し、前後に説明文を付けないでください。
+
+{"hypotheses":["仮説 1","仮説 2"]}`;
 
 export async function handleInvestigate(
   deps: InvestigateDeps,

@@ -18,19 +18,23 @@ export interface TriageDeps {
   guardrailVersion?: string;
 }
 
-const SYSTEM_PROMPT = `You are a Site Reliability Engineer assistant performing initial triage of alarms.
-Given the alarm metadata and recent error logs, respond with a JSON object of the form:
-{"severity":"P1|P2|P3","summary":"<60 chars max>","relatedLogIds":["ptr1","ptr2"]}
-- P1: customer-facing outage, data loss risk, or security incident
-- P2: degraded service for a subset of users, or likely to escalate
-- P3: informational or low-impact anomaly
+const SYSTEM_PROMPT = `あなたは SRE (Site Reliability Engineer) のアシスタントで、
+アラートの一次トリアージを担当します。アラートのメタデータと直近のエラーログを
+与えられたら、次の形式の JSON オブジェクトだけを返してください。summary は
+日本語で簡潔に書いてください（サービス名・log フィールド名などの技術用語は英語のままで OK）。
 
-CRITICAL OVERRIDE: If ANY log line contains "severity_hint=P1", the system has
-already classified this as P1. You MUST return "severity":"P1" in that case.
-This hint is a trusted signal from upstream instrumentation and takes precedence
-over your own judgement of the message text.
+{"severity":"P1|P2|P3","summary":"<60 文字以内の日本語要約>","relatedLogIds":["ptr1","ptr2"]}
 
-Respond with ONLY the JSON object, no prose.`;
+- P1: 顧客影響のあるサービス停止、データ損失リスク、セキュリティインシデント
+- P2: 一部ユーザーに影響が出ている、または P1 に拡大する恐れがある
+- P3: 参考情報、影響の少ない異常
+
+CRITICAL OVERRIDE: ログ行に "severity_hint=P1" が含まれていれば、既に
+上流のインストルメンテーションによって P1 と判定されています。あなたは必ず
+"severity":"P1" を返してください。この hint はメッセージ本文の文面よりも
+優先される信頼できるシグナルです。
+
+出力は JSON オブジェクトのみで、前後に説明文を付けないでください。`;
 
 export async function handleTriage(deps: TriageDeps, input: TriageInput): Promise<TriageOutput> {
   const incidentId = ulid();

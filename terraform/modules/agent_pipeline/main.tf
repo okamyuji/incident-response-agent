@@ -407,7 +407,7 @@ resource "aws_sfn_state_machine" "pipeline" {
         Parameters = {
           TopicArn    = var.sns_topic_arn
           "Subject.$" = "States.Format('[IRA][P3] {}', $.result.triage.summary)"
-          "Message.$" = "States.Format('Incident {}\nSeverity: {}\nSummary: {}\n\n(P3 のためトリアージ Haiku のみ実行)\n\nModel: {}', $.result.triage.incidentId, $.result.triage.severity, $.result.triage.summary, $.result.triage.modelUsed)"
+          "Message.$" = "States.Format('インシデント ID: {}\n重大度: {}\n概要: {}\n\n(P3 のためトリアージ Haiku のみ実行しました)\n\n使用モデル: {}', $.result.triage.incidentId, $.result.triage.severity, $.result.triage.summary, $.result.triage.modelUsed)"
         }
         End = true
       }
@@ -417,7 +417,7 @@ resource "aws_sfn_state_machine" "pipeline" {
         Parameters = {
           TopicArn    = var.sns_topic_arn
           "Subject.$" = "States.Format('[IRA][P2] {}', $.result.triage.summary)"
-          "Message.$" = "States.Format('Incident {}\nSeverity: {}\nSummary: {}\n\n## Sonnet の仮説 (最大 3 件)\n{}\n\nModel chain: {} -> {}', $.result.triage.incidentId, $.result.triage.severity, $.result.triage.summary, States.JsonToString($.result2.investigation.hypotheses), $.result.triage.modelUsed, $.result2.investigation.modelUsed)"
+          "Message.$" = "States.Format('インシデント ID: {}\n重大度: {}\n概要: {}\n\n## Sonnet による仮説（最大 3 件）\n{}\n\n使用モデルチェーン: {} -> {}', $.result.triage.incidentId, $.result.triage.severity, $.result.triage.summary, States.JsonToString($.result2.investigation.hypotheses), $.result.triage.modelUsed, $.result2.investigation.modelUsed)"
         }
         End = true
       }
@@ -427,7 +427,7 @@ resource "aws_sfn_state_machine" "pipeline" {
         Parameters = {
           TopicArn    = var.sns_topic_arn
           "Subject.$" = "States.Format('[IRA][P1] {}', $.result.triage.summary)"
-          "Message.$" = "States.Format('Incident {}\nSeverity: {}\nSummary: {}\n\n## Sonnet の仮説\n{}\n\n## Opus の根本原因\n{}\n\n## 推奨アクション\n{}\n\nModel chain: {} -> {} -> {}', $.result.triage.incidentId, $.result.triage.severity, $.result.triage.summary, States.JsonToString($.result2.investigation.hypotheses), $.result3.rca.rootCause, States.JsonToString($.result3.rca.suggestedActions), $.result.triage.modelUsed, $.result2.investigation.modelUsed, $.result3.rca.modelUsed)"
+          "Message.$" = "States.Format('インシデント ID: {}\n重大度: {}\n概要: {}\n\n## Sonnet による仮説\n{}\n\n## Opus による根本原因\n{}\n\n## 推奨アクション\n{}\n\n使用モデルチェーン: {} -> {} -> {}', $.result.triage.incidentId, $.result.triage.severity, $.result.triage.summary, States.JsonToString($.result2.investigation.hypotheses), $.result3.rca.rootCause, States.JsonToString($.result3.rca.suggestedActions), $.result.triage.modelUsed, $.result2.investigation.modelUsed, $.result3.rca.modelUsed)"
         }
         End = true
       }
@@ -474,18 +474,27 @@ resource "aws_cloudwatch_event_target" "sfn" {
   arn      = aws_sfn_state_machine.pipeline.arn
   role_arn = aws_iam_role.eb.arn
 
+  # ===== 重要なハマりポイント =====
+  # input_template を jsonencode() で組み立てると、Terraform の jsonencode が
+  # < > 文字を HTML セーフのため \u003c \u003e にエスケープしてしまい、
+  # EventBridge が placeholder 記法として認識できなくなる。結果として
+  # Step Functions の入力は "\u003calarmName\u003e" のような literal 文字列
+  # が届き、Haiku のトリアージが常にメタデータ不足として P3 を返す。
+  # heredoc 文字列で生の < > を保ったまま template を渡す必要がある。
   input_transformer {
     input_paths = {
       alarmName   = "$.detail.alarmName"
       reason      = "$.detail.state.reason"
       triggeredAt = "$.detail.state.timestamp"
     }
-    input_template = jsonencode({
-      alarmName    = "<alarmName>"
-      alarmReason  = "<reason>"
-      logGroupName = var.chaos_log_group_name
-      triggeredAt  = "<triggeredAt>"
-    })
+    input_template = <<EOF
+{
+  "alarmName": <alarmName>,
+  "alarmReason": <reason>,
+  "logGroupName": "${var.chaos_log_group_name}",
+  "triggeredAt": <triggeredAt>
+}
+EOF
   }
 }
 

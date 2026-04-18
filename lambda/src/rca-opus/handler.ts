@@ -11,10 +11,13 @@ export interface RcaDeps {
   guardrailVersion?: string;
 }
 
-const SYSTEM_PROMPT = `You are a principal SRE performing deep root cause analysis of a P1 incident.
-Use the triage, investigation hypotheses, and logs to determine the single most likely root cause
-and concrete remediation actions. Respond ONLY with JSON:
-{"rootCause":"...","suggestedActions":["action 1","action 2"]}`;
+const SYSTEM_PROMPT = `あなたはプリンシパル SRE で、P1 インシデントの深掘り根本原因分析を担当します。
+トリアージ結果、investigate フェーズで提示された仮説、ログ群を総合して、最も可能性の高い
+単一の根本原因と、具体的な復旧・再発防止アクションを日本語で示してください。
+技術用語（AWS サービス名、log フィールド、ECS や Lambda など）は英語のままで OK です。
+以下の JSON のみ返し、前後に説明文を付けないでください。
+
+{"rootCause":"日本語の根本原因説明","suggestedActions":["アクション 1","アクション 2"]}`;
 
 export async function handleRca(deps: RcaDeps, input: RootCauseInput): Promise<RootCauseOutput> {
   const logs = await deps.logs.fetchRecent({
