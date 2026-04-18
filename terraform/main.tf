@@ -90,3 +90,19 @@ module "budgets" {
   limit_usd          = var.budget_limit_usd
   notification_email = var.notification_email
 }
+
+module "guardduty" {
+  count         = var.enable_guardduty ? 1 : 0
+  source        = "./modules/guardduty"
+  name_prefix   = local.name_prefix
+  sns_topic_arn = module.notifications.topic_arn
+}
+
+module "config_governance" {
+  count         = var.enable_config ? 1 : 0
+  source        = "./modules/config_governance"
+  name_prefix   = local.name_prefix
+  region        = var.region
+  account_id    = data.aws_caller_identity.current.account_id
+  sns_topic_arn = module.notifications.topic_arn
+}

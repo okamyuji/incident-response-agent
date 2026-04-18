@@ -94,3 +94,15 @@ variable "lambda_artifact_dir" {
   type        = string
   default     = "../../lambda/dist"
 }
+
+variable "enable_guardduty" {
+  description = "Enable GuardDuty detector. Set false if already enabled account-wide."
+  type        = bool
+  default     = true
+}
+
+variable "enable_config" {
+  description = "Enable AWS Config recorder and rules. Set false if another recorder exists in the region."
+  type        = bool
+  default     = true
+}
