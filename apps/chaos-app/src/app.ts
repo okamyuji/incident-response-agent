@@ -6,6 +6,7 @@ import { triggerLatency } from '@/chaos/latency.js';
 import { triggerOom } from '@/chaos/oom.js';
 import { triggerExternalFailure } from '@/chaos/external.js';
 import { triggerErrorLogSpike } from '@/chaos/errorlog.js';
+import { triggerP1Outage } from '@/chaos/p1.js';
 import type { ChaosKind } from '@/chaos/scheduler.js';
 
 export function buildApp(): Express {
@@ -35,6 +36,10 @@ export function buildApp(): Express {
 
   app.post('/chaos/errorlog', (req: Request, res: Response) => {
     triggerErrorLogSpike(req, res);
+  });
+
+  app.post('/chaos/p1', (_req: Request, res: Response) => {
+    triggerP1Outage(res);
   });
 
   app.use((_req: Request, res: Response) => {
