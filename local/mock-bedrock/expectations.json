@@ -1,0 +1,15 @@
+[
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/invoke"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "content-type": ["application/json"]
+      },
+      "body": "{\"output\":{\"message\":{\"content\":[{\"text\":\"{\\\"severity\\\":\\\"P2\\\",\\\"summary\\\":\\\"mock triage result\\\",\\\"relatedLogIds\\\":[\\\"mock1\\\"]}\"}]}},\"usage\":{\"inputTokens\":120,\"outputTokens\":24}}"
+    }
+  }
+]

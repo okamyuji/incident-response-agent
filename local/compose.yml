@@ -1,0 +1,77 @@
+# ハマりポイント:
+# 1. Docker Compose V2 は `services:` トップレベルキーが必須です（削ると
+#    "additional properties not allowed" で起動失敗します）。
+# 2. LocalStack の 4566 ポートは他プロジェクトと衝突しやすいので、ホスト側を
+#    4567 にずらしています。bootstrap-localstack.sh と local-verify.sh も
+#    4567 を叩く設定になっています。
+# 3. chaos-app のホスト側ポートも macOS の AirPlay などで 8080 が埋まりがちなので
+#    8180 に。agt-sidecar は 8181。
+services:
+  localstack:
+    image: localstack/localstack:3.8.1
+    container_name: ira-localstack
+    ports:
+      - "4567:4566"
+    environment:
+      - SERVICES=dynamodb,sns,logs,cloudwatch,events,stepfunctions,lambda,iam,sts,ecs,ec2,elbv2,ecr,budgets
+      - DEBUG=0
+      - LAMBDA_EXECUTOR=docker
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./localstack-data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  chaos-app:
+    build:
+      context: ../apps/chaos-app
+      dockerfile: Dockerfile
+    container_name: ira-chaos-app
+    ports:
+      - "8180:8080"
+    environment:
+      - PORT=8080
+      - LOG_LEVEL=info
+      - RANDOM_SCHEDULER_ENABLED=false
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  agt-sidecar:
+    build:
+      context: ../apps/agt-sidecar
+      dockerfile: Dockerfile
+    container_name: ira-agt-sidecar
+    ports:
+      - "8181:8081"
+    environment:
+      - PORT=8081
+      - LOG_LEVEL=info
+      - UPSTREAM_ENDPOINT=http://mock-bedrock:9000/invoke
+    depends_on:
+      - mock-bedrock
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8081/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  mock-bedrock:
+    image: mockserver/mockserver:5.15.0
+    container_name: ira-mock-bedrock
+    ports:
+      - "9000:9000"
+    environment:
+      - MOCKSERVER_SERVER_PORT=9000
+      - MOCKSERVER_INITIALIZATION_JSON_PATH=/config/expectations.json
+    volumes:
+      - ./mock-bedrock:/config
