@@ -5,6 +5,7 @@
 // "ignore previous instructions" 等が混じって来るので Guardrails も併用します。
 import { ulid } from 'ulid';
 import { parseTriageJson } from '@/shared/parse.js';
+import { compressLogs } from '@/shared/prefilter.js';
 import type { BedrockInvoker } from '@/shared/bedrock.js';
 import type { LogFetcher } from '@/shared/logs.js';
 import type { TriageInput, TriageOutput } from '@/shared/types.js';
@@ -37,8 +38,8 @@ export async function handleTriage(deps: TriageDeps, input: TriageInput): Promis
     `Alarm name: ${input.alarmName}`,
     `Reason: ${input.alarmReason}`,
     `Triggered at: ${input.triggeredAt}`,
-    `Recent error logs:`,
-    ...logs.map((l) => `- [${l.logId}] ${l.timestamp} ${l.message}`.slice(0, 500)),
+    `Recent error logs (prefiltered):`,
+    compressLogs(logs),
   ].join('\n');
 
   const result = await deps.bedrock.invoke({
