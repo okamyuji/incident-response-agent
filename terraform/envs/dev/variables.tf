@@ -36,3 +36,13 @@ variable "lambda_artifact_dir" {
   type    = string
   default = "../../../lambda/dist"
 }
+
+variable "enable_guardduty" {
+  type    = bool
+  default = true
+}
+
+variable "enable_config" {
+  type    = bool
+  default = true
+}

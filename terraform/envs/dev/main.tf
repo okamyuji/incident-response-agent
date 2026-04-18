@@ -13,6 +13,8 @@ module "ira" {
   chaos_app_image_tag   = var.chaos_app_image_tag
   agt_sidecar_image_tag = var.agt_sidecar_image_tag
   lambda_artifact_dir   = var.lambda_artifact_dir
+  enable_guardduty      = var.enable_guardduty
+  enable_config         = var.enable_config
 }
 
 output "alb_dns_name" { value = module.ira.alb_dns_name }

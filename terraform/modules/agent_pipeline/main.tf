@@ -340,7 +340,7 @@ resource "aws_sfn_state_machine" "pipeline" {
         ResultPath = "$.result3"
         Next       = "PersistWithOpus"
       }
-      # P3 path: Haiku のみ
+      # P3 path: Haiku のトリアージ結果のみ保存 + 通知
       PersistTriageOnly = {
         Type     = "Task"
         Resource = "arn:aws:states:::dynamodb:putItem"
@@ -356,9 +356,9 @@ resource "aws_sfn_state_machine" "pipeline" {
           }
         }
         ResultPath = null
-        Next       = "Notify"
+        Next       = "NotifyP3"
       }
-      # P2 path: Haiku -> Sonnet
+      # P2 path: Haiku + Sonnet の仮説まで保存 + 通知
       PersistWithSonnet = {
         Type     = "Task"
         Resource = "arn:aws:states:::dynamodb:putItem"
@@ -370,37 +370,64 @@ resource "aws_sfn_state_machine" "pipeline" {
             severity    = { "S.$" = "$.result.triage.severity" }
             summary     = { "S.$" = "$.result.triage.summary" }
             model_chain = { "S.$" = "States.Format('{} -> {}', $.result.triage.modelUsed, $.result2.investigation.modelUsed)" }
+            hypotheses  = { "S.$" = "States.JsonToString($.result2.investigation.hypotheses)" }
             ttl         = { "N" = tostring(2592000) }
           }
         }
         ResultPath = null
-        Next       = "Notify"
+        Next       = "NotifyP2"
       }
-      # P1 path: Haiku -> Sonnet -> Opus
+      # P1 path: Haiku + Sonnet + Opus すべての成果物を保存 + 通知
       PersistWithOpus = {
         Type     = "Task"
         Resource = "arn:aws:states:::dynamodb:putItem"
         Parameters = {
           TableName = var.incidents_table_name
           Item = {
-            incident_id = { "S.$" = "$.result.triage.incidentId" }
-            created_at  = { "S.$" = "$$.State.EnteredTime" }
-            severity    = { "S.$" = "$.result.triage.severity" }
-            summary     = { "S.$" = "$.result.triage.summary" }
-            model_chain = { "S.$" = "States.Format('{} -> {} -> {}', $.result.triage.modelUsed, $.result2.investigation.modelUsed, $.result3.rca.modelUsed)" }
-            ttl         = { "N" = tostring(2592000) }
+            incident_id       = { "S.$" = "$.result.triage.incidentId" }
+            created_at        = { "S.$" = "$$.State.EnteredTime" }
+            severity          = { "S.$" = "$.result.triage.severity" }
+            summary           = { "S.$" = "$.result.triage.summary" }
+            model_chain       = { "S.$" = "States.Format('{} -> {} -> {}', $.result.triage.modelUsed, $.result2.investigation.modelUsed, $.result3.rca.modelUsed)" }
+            hypotheses        = { "S.$" = "States.JsonToString($.result2.investigation.hypotheses)" }
+            root_cause        = { "S.$" = "$.result3.rca.rootCause" }
+            suggested_actions = { "S.$" = "States.JsonToString($.result3.rca.suggestedActions)" }
+            ttl               = { "N" = tostring(2592000) }
           }
         }
         ResultPath = null
-        Next       = "Notify"
+        Next       = "NotifyP1"
       }
-      Notify = {
+      # 通知メール本文は severity に応じて内容を変える。
+      # Lambda の分析結果（Sonnet の仮説、Opus の root cause と remediation）を
+      # そのまま本文に載せて、受信者が一次切り分けの判断材料を得られるようにする。
+      NotifyP3 = {
         Type     = "Task"
         Resource = "arn:aws:states:::sns:publish"
         Parameters = {
           TopicArn    = var.sns_topic_arn
-          Subject     = "[IRA] incident detected"
-          "Message.$" = "States.Format('Incident {} severity {}: {}', $.result.triage.incidentId, $.result.triage.severity, $.result.triage.summary)"
+          "Subject.$" = "States.Format('[IRA][P3] {}', $.result.triage.summary)"
+          "Message.$" = "States.Format('Incident {}\nSeverity: {}\nSummary: {}\n\n(P3 のためトリアージ Haiku のみ実行)\n\nModel: {}', $.result.triage.incidentId, $.result.triage.severity, $.result.triage.summary, $.result.triage.modelUsed)"
+        }
+        End = true
+      }
+      NotifyP2 = {
+        Type     = "Task"
+        Resource = "arn:aws:states:::sns:publish"
+        Parameters = {
+          TopicArn    = var.sns_topic_arn
+          "Subject.$" = "States.Format('[IRA][P2] {}', $.result.triage.summary)"
+          "Message.$" = "States.Format('Incident {}\nSeverity: {}\nSummary: {}\n\n## Sonnet の仮説 (最大 3 件)\n{}\n\nModel chain: {} -> {}', $.result.triage.incidentId, $.result.triage.severity, $.result.triage.summary, States.JsonToString($.result2.investigation.hypotheses), $.result.triage.modelUsed, $.result2.investigation.modelUsed)"
+        }
+        End = true
+      }
+      NotifyP1 = {
+        Type     = "Task"
+        Resource = "arn:aws:states:::sns:publish"
+        Parameters = {
+          TopicArn    = var.sns_topic_arn
+          "Subject.$" = "States.Format('[IRA][P1] {}', $.result.triage.summary)"
+          "Message.$" = "States.Format('Incident {}\nSeverity: {}\nSummary: {}\n\n## Sonnet の仮説\n{}\n\n## Opus の根本原因\n{}\n\n## 推奨アクション\n{}\n\nModel chain: {} -> {} -> {}', $.result.triage.incidentId, $.result.triage.severity, $.result.triage.summary, States.JsonToString($.result2.investigation.hypotheses), $.result3.rca.rootCause, States.JsonToString($.result3.rca.suggestedActions), $.result.triage.modelUsed, $.result2.investigation.modelUsed, $.result3.rca.modelUsed)"
         }
         End = true
       }
