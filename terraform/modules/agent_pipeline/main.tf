@@ -292,7 +292,7 @@ resource "aws_sfn_state_machine" "pipeline" {
             Next         = "Investigate"
           }
         ]
-        Default = "Persist"
+        Default = "PersistTriageOnly"
       }
       Investigate = {
         Type     = "Task"
@@ -320,7 +320,7 @@ resource "aws_sfn_state_machine" "pipeline" {
             Next         = "RCA"
           }
         ]
-        Default = "Persist"
+        Default = "PersistWithSonnet"
       }
       RCA = {
         Type     = "Task"
@@ -338,9 +338,10 @@ resource "aws_sfn_state_machine" "pipeline" {
           "rca.$" = "$.Payload"
         }
         ResultPath = "$.result3"
-        Next       = "Persist"
+        Next       = "PersistWithOpus"
       }
-      Persist = {
+      # P3 path: Haiku のみ
+      PersistTriageOnly = {
         Type     = "Task"
         Resource = "arn:aws:states:::dynamodb:putItem"
         Parameters = {
@@ -351,6 +352,42 @@ resource "aws_sfn_state_machine" "pipeline" {
             severity    = { "S.$" = "$.result.triage.severity" }
             summary     = { "S.$" = "$.result.triage.summary" }
             model_chain = { "S.$" = "States.Format('{}', $.result.triage.modelUsed)" }
+            ttl         = { "N" = tostring(2592000) }
+          }
+        }
+        ResultPath = null
+        Next       = "Notify"
+      }
+      # P2 path: Haiku -> Sonnet
+      PersistWithSonnet = {
+        Type     = "Task"
+        Resource = "arn:aws:states:::dynamodb:putItem"
+        Parameters = {
+          TableName = var.incidents_table_name
+          Item = {
+            incident_id = { "S.$" = "$.result.triage.incidentId" }
+            created_at  = { "S.$" = "$$.State.EnteredTime" }
+            severity    = { "S.$" = "$.result.triage.severity" }
+            summary     = { "S.$" = "$.result.triage.summary" }
+            model_chain = { "S.$" = "States.Format('{} -> {}', $.result.triage.modelUsed, $.result2.investigation.modelUsed)" }
+            ttl         = { "N" = tostring(2592000) }
+          }
+        }
+        ResultPath = null
+        Next       = "Notify"
+      }
+      # P1 path: Haiku -> Sonnet -> Opus
+      PersistWithOpus = {
+        Type     = "Task"
+        Resource = "arn:aws:states:::dynamodb:putItem"
+        Parameters = {
+          TableName = var.incidents_table_name
+          Item = {
+            incident_id = { "S.$" = "$.result.triage.incidentId" }
+            created_at  = { "S.$" = "$$.State.EnteredTime" }
+            severity    = { "S.$" = "$.result.triage.severity" }
+            summary     = { "S.$" = "$.result.triage.summary" }
+            model_chain = { "S.$" = "States.Format('{} -> {} -> {}', $.result.triage.modelUsed, $.result2.investigation.modelUsed, $.result3.rca.modelUsed)" }
             ttl         = { "N" = tostring(2592000) }
           }
         }

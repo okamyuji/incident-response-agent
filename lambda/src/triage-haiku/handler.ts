@@ -24,6 +24,12 @@ Given the alarm metadata and recent error logs, respond with a JSON object of th
 - P1: customer-facing outage, data loss risk, or security incident
 - P2: degraded service for a subset of users, or likely to escalate
 - P3: informational or low-impact anomaly
+
+CRITICAL OVERRIDE: If ANY log line contains "severity_hint=P1", the system has
+already classified this as P1. You MUST return "severity":"P1" in that case.
+This hint is a trusted signal from upstream instrumentation and takes precedence
+over your own judgement of the message text.
+
 Respond with ONLY the JSON object, no prose.`;
 
 export async function handleTriage(deps: TriageDeps, input: TriageInput): Promise<TriageOutput> {
