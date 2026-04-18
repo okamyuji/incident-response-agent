@@ -149,6 +149,40 @@ resource "aws_cloudwatch_metric_alarm" "target_unhealthy" {
   tags = { Role = "incident-trigger" }
 }
 
+# ===== P1 severity ヒント検知 =====
+# chaos-app の POST /chaos/p1 エンドポイントが "severity_hint":"P1" を含む
+# JSON ログを emit する。Metric Filter で件数をカウントし、1 件でも出たら
+# 即座にアラームを発報して Step Functions を起動する。
+resource "aws_cloudwatch_log_metric_filter" "p1_severity_hint" {
+  name           = "${var.name_prefix}-p1-severity-hint"
+  log_group_name = var.chaos_log_group_name
+  pattern        = "{ $.severity_hint = \"P1\" }"
+
+  metric_transformation {
+    name          = "P1SeverityHintCount"
+    namespace     = "IRA/Chaos"
+    value         = "1"
+    default_value = "0"
+    unit          = "Count"
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "p1_severity_hint" {
+  alarm_name          = "${var.name_prefix}-p1-severity-hint"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  threshold           = 0
+  period              = 60
+  statistic           = "Sum"
+  metric_name         = aws_cloudwatch_log_metric_filter.p1_severity_hint.metric_transformation[0].name
+  namespace           = aws_cloudwatch_log_metric_filter.p1_severity_hint.metric_transformation[0].namespace
+  treat_missing_data  = "notBreaching"
+
+  alarm_description = "P1 severity hint observed in chaos-app logs"
+
+  tags = { Role = "incident-trigger" }
+}
+
 resource "aws_cloudwatch_event_rule" "alarm_to_pipeline" {
   name        = "${var.name_prefix}-alarm-to-pipeline"
   description = "Triggers the agent pipeline on CloudWatch alarm state change"
