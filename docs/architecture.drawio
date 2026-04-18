@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram name="architecture" id="ira-arch">
-        <mxGraphModel dx="1086" dy="672" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+        <mxGraphModel dx="1086" dy="672" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1000" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -28,7 +28,7 @@
                 <mxCell id="igw" value="Internet Gateway" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.internet_gateway;labelPosition=bottom;align=center;verticalLabelPosition=bottom;strokeColor=none;fillColor=#8C4FFF;" parent="1" vertex="1">
                     <mxGeometry x="370" y="70" width="50" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="chaos-ecs" value="chaos-app&#xa;ECS Fargate 0.25vCPU" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.fargate;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#E7157B;" parent="1" vertex="1">
+                <mxCell id="chaos-ecs" value="chaos-app&#xa;ECS Fargate 0.25vCPU&#xa;POST /chaos/{http,latency,oom,external,errorlog,p1}" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.fargate;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#E7157B;" parent="1" vertex="1">
                     <mxGeometry x="160" y="360" width="60" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="agt-ecs" value="agt-sidecar&#xa;ECS Fargate 0.25vCPU" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.fargate;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#E7157B;" parent="1" vertex="1">
@@ -37,22 +37,22 @@
                 <mxCell id="cwlogs" value="CloudWatch Logs&#xa;(Data Protection Policy)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#E7157B;" parent="1" vertex="1">
                     <mxGeometry x="460" y="360" width="60" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="cwalarm" value="CloudWatch Alarm&#xa;(HTTP 5xx / CPU / UnHealthy)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch_alarm;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#E7157B;" parent="1" vertex="1">
+                <mxCell id="cwalarm" value="CloudWatch Alarm&#xa;HTTP 5xx / CPU / UnHealthy&#xa;+ P1 severity_hint Metric Filter" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch_alarm;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#E7157B;" parent="1" vertex="1">
                     <mxGeometry x="460" y="460" width="60" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="eb" value="EventBridge" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.eventbridge;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#E7157B;" parent="1" vertex="1">
+                <mxCell id="eb" value="EventBridge&#xa;(Alarm + GuardDuty findings)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.eventbridge;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#E7157B;" parent="1" vertex="1">
                     <mxGeometry x="460" y="560" width="60" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="sfn" value="Step Functions&#xa;(ira-dev-pipeline)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.step_functions;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#E7157B;" parent="1" vertex="1">
+                <mxCell id="sfn" value="Step Functions&#xa;(ira-dev-pipeline)&#xa;Triage -&gt; Investigate -&gt; RCA&#xa;P3=Haiku / P2=+Sonnet / P1=+Opus" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.step_functions;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#E7157B;" parent="1" vertex="1">
                     <mxGeometry x="710" y="360" width="60" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="ddb" value="DynamoDB&#xa;ira-dev-incidents" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#3B48CC;" parent="1" vertex="1">
+                <mxCell id="ddb" value="DynamoDB&#xa;ira-dev-incidents&#xa;(severity, model_chain, ttl)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#3B48CC;" parent="1" vertex="1">
                     <mxGeometry x="710" y="460" width="60" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="sns" value="SNS Topic&#xa;(email)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.simple_notification_service;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#E7157B;" parent="1" vertex="1">
+                <mxCell id="sns" value="SNS Topic&#xa;(email oncall)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.simple_notification_service;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#E7157B;" parent="1" vertex="1">
                     <mxGeometry x="710" y="560" width="60" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="lambda-h" value="Lambda triage&#xa;(Haiku 4.5)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#ED7100;" parent="1" vertex="1">
+                <mxCell id="lambda-h" value="Lambda triage&#xa;(Haiku 4.5)&#xa;+ log prefilter (token -70%)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#ED7100;" parent="1" vertex="1">
                     <mxGeometry x="280" y="560" width="50" height="50" as="geometry"/>
                 </mxCell>
                 <mxCell id="lambda-s" value="Lambda investigate&#xa;(Sonnet 4.6)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#ED7100;" parent="1" vertex="1">
@@ -73,11 +73,26 @@
                 <mxCell id="ctrail" value="CloudTrail&#xa;(Bedrock invocation audit)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudtrail;labelPosition=bottom;align=center;verticalLabelPosition=bottom;strokeColor=none;fillColor=#E7157B;" parent="1" vertex="1">
                     <mxGeometry x="1000" y="680" width="50" height="50" as="geometry"/>
                 </mxCell>
+                <mxCell id="governance-box" value="Governance &amp; Detection (account scope)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EFEBE9;strokeColor=#5D4037;dashed=1;verticalAlign=top;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="1140" y="310" width="300" height="430" as="geometry"/>
+                </mxCell>
+                <mxCell id="guardduty" value="GuardDuty&#xa;(detector, 15 min)&#xa;VPC Flow Logs + CloudTrail" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.guardduty;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#BF0816;" parent="1" vertex="1">
+                    <mxGeometry x="1170" y="360" width="60" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="config" value="AWS Config&#xa;recorder + delivery channel&#xa;managed rules x4" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.config;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#BF0816;" parent="1" vertex="1">
+                    <mxGeometry x="1170" y="470" width="60" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="config-s3" value="S3 (Config)&#xa;ira-dev-config-&lt;acct&gt;" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;labelPosition=right;align=left;spacingLeft=15;verticalLabelPosition=middle;strokeColor=none;fillColor=#277116;" parent="1" vertex="1">
+                    <mxGeometry x="1170" y="580" width="60" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="config-note" value="Config rules:&#xa;• IAM_PASSWORD_POLICY&#xa;• INCOMING_SSH_DISABLED&#xa;• S3_PUBLIC_READ_PROHIBITED&#xa;• EC2_SG_ATTACHED_TO_ENI" style="text;html=1;strokeColor=#888;fillColor=#FFFDE7;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="1170" y="660" width="260" height="70" as="geometry"/>
+                </mxCell>
                 <mxCell id="user" value="Chaos trigger&#xa;(curl / scripts)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.user;labelPosition=bottom;align=center;verticalLabelPosition=bottom;strokeColor=none;fillColor=#232F3E;" parent="1" vertex="1">
-                    <mxGeometry x="1220" y="200" width="50" height="50" as="geometry"/>
+                    <mxGeometry x="1500" y="140" width="50" height="50" as="geometry"/>
                 </mxCell>
                 <mxCell id="oncall" value="Oncall engineer&#xa;(Email)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.user;labelPosition=bottom;align=center;verticalLabelPosition=bottom;strokeColor=none;fillColor=#232F3E;" parent="1" vertex="1">
-                    <mxGeometry x="1220" y="570" width="50" height="50" as="geometry"/>
+                    <mxGeometry x="900" y="570" width="50" height="50" as="geometry"/>
                 </mxCell>
                 <mxCell id="e1" style="endArrow=classic;html=1;rounded=0;strokeColor=#1976D2;" parent="1" source="user" target="alb" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -115,10 +130,8 @@
                 <mxCell id="e12" style="endArrow=classic;html=1;rounded=0;strokeColor=#3B48CC;" parent="1" source="sfn" target="ddb" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="e13" style="endArrow=classic;html=1;rounded=0;strokeColor=#E7157B;" parent="1" target="sns" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="740" y="520" as="sourcePoint"/>
-                    </mxGeometry>
+                <mxCell id="e13" style="endArrow=classic;html=1;rounded=0;strokeColor=#E7157B;" parent="1" source="sfn" target="sns" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="e14" style="endArrow=classic;html=1;rounded=0;strokeColor=#232F3E;" parent="1" source="sns" target="oncall" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -129,8 +142,14 @@
                 <mxCell id="e16" style="endArrow=classic;html=1;rounded=0;strokeColor=#F57C00;dashed=1;" parent="1" source="nat" target="igw" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="legend" value="Legend&#xa;• Blue: user ingress&#xa;• Green: logging path&#xa;• Orange: alarm-to-pipeline trigger&#xa;• Pink: AWS service invocation&#xa;• Teal: Bedrock inference" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#888;align=left;verticalAlign=top;fontSize=11;" parent="1" vertex="1">
-                    <mxGeometry x="950" y="120" width="200" height="90" as="geometry"/>
+                <mxCell id="e17" style="endArrow=classic;html=1;rounded=0;strokeColor=#BF0816;" parent="1" source="guardduty" target="eb" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e18" style="endArrow=classic;html=1;rounded=0;strokeColor=#277116;" parent="1" source="config" target="config-s3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend" value="Legend&#xa;• Blue: user ingress&#xa;• Green: logging path&#xa;• Orange: alarm-to-pipeline trigger&#xa;• Pink: AWS service invocation&#xa;• Teal: Bedrock inference&#xa;• Red: Governance &amp; threat detection" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#888;align=left;verticalAlign=top;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="950" y="120" width="240" height="110" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
