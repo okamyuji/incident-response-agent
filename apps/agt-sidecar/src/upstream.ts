@@ -33,10 +33,7 @@ export class BedrockUpstream implements UpstreamInvoker {
     });
     const text = await response.text();
     const contentType = response.headers.get('content-type') ?? '';
-    const parsed =
-      contentType.includes('json') && text
-        ? (JSON.parse(text) as unknown)
-        : text;
+    const parsed = contentType.includes('json') && text ? (JSON.parse(text) as unknown) : text;
 
     logger.info(
       {

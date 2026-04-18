@@ -4,7 +4,10 @@ import { evaluate } from '@/policy.js';
 describe('evaluate()', () => {
   it('allows a benign request', () => {
     const result = evaluate({
-      body: { modelId: 'anthropic.claude-haiku-4-5-20251001-v1:0', messages: [{ role: 'user', content: 'hi' }] },
+      body: {
+        modelId: 'anthropic.claude-haiku-4-5-20251001-v1:0',
+        messages: [{ role: 'user', content: 'hi' }],
+      },
       headers: {},
       path: '/v1/invoke',
     });

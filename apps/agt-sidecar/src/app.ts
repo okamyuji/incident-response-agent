@@ -4,7 +4,10 @@ import { logger } from '@/logger.js';
 import { evaluate } from '@/policy.js';
 
 export interface UpstreamInvoker {
-  invoke(body: unknown, headers: Record<string, string>): Promise<{ status: number; body: unknown }>;
+  invoke(
+    body: unknown,
+    headers: Record<string, string>,
+  ): Promise<{ status: number; body: unknown }>;
 }
 
 export function buildApp(upstream: UpstreamInvoker): Express {

@@ -3,7 +3,10 @@ import request from 'supertest';
 import { buildApp, type UpstreamInvoker } from '@/app.js';
 
 function makeUpstream(
-  impl: (body: unknown, headers: Record<string, string>) => Promise<{ status: number; body: unknown }>,
+  impl: (
+    body: unknown,
+    headers: Record<string, string>,
+  ) => Promise<{ status: number; body: unknown }>,
 ): UpstreamInvoker {
   return { invoke: vi.fn(impl) };
 }

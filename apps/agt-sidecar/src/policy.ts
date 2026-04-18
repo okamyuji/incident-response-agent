@@ -1,6 +1,4 @@
-export type PolicyDecision =
-  | { action: 'allow' }
-  | { action: 'deny'; reason: string; rule: string };
+export type PolicyDecision = { action: 'allow' } | { action: 'deny'; reason: string; rule: string };
 
 export interface PolicyContext {
   body: unknown;
