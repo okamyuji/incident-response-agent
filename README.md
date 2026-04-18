@@ -93,6 +93,16 @@ terraform apply
 
 詳細な手順は [docs/runbook.md](docs/runbook.md) を参照してください。
 
+## 開発環境セットアップ
+
+リポジトリをクローンした直後に下記スクリプトを 1 回だけ実行して pre-commit フックを有効化します。
+
+```bash
+./scripts/install-hooks.sh
+```
+
+このフックは commit 時に全 workspace（`apps/chaos-app` / `apps/agt-sidecar` / `lambda`）で `format:check`、`lint`、`test`、`build` を完全実行します。遅さより完全性を優先する厳密版のため、ローカルでも実行に数十秒〜 1 分程度かかります。
+
 ## 既知の制約と留意点
 
 - Agent Governance Toolkitはpublic preview段階であり、破壊的変更のリスクがあります。本実装ではバージョンをピン止めし、アップデート時はリグレッションテストを通す運用を前提としています。

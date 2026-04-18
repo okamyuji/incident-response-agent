@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# pre-commit 品質ゲート（厳密版）
+#
+# 方針: 全 workspace で format:check + lint (tsc) + test (vitest + coverage) + build を完全実行する。
+# 遅くても commit 時点で完全性を担保することを優先（ADR: docs/superpowers/specs の方針）。
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+WORKSPACES=(
+  "apps/chaos-app"
+  "apps/agt-sidecar"
+  "lambda"
+)
+
+total="${#WORKSPACES[@]}"
+echo "[pre-commit] quality gate start (workspaces=${total})"
+
+idx=0
+for ws in "${WORKSPACES[@]}"; do
+  idx=$((idx + 1))
+  dir="$REPO_ROOT/$ws"
+  if [ ! -f "$dir/package.json" ]; then
+    echo "[pre-commit] (${idx}/${total}) skip: $ws (no package.json)"
+    continue
+  fi
+
+  echo "[pre-commit] (${idx}/${total}) === $ws ==="
+  (
+    cd "$dir"
+    pnpm --silent format:check
+    pnpm --silent lint
+    pnpm --silent test
+    pnpm --silent build
+  )
+done
+
+echo "[pre-commit] all workspaces passed"
