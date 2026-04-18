@@ -6,8 +6,7 @@ const ALLOCATE_INTERVAL_MS = 50;
 const leakedBuffers: Buffer[] = [];
 
 export function triggerOom(res: Response): void {
-  const testMode =
-    process.env.NODE_ENV === 'test' || process.env.CHAOS_TEST_MODE === 'true';
+  const testMode = process.env.NODE_ENV === 'test' || process.env.CHAOS_TEST_MODE === 'true';
   logger.error(
     { chaos_type: 'oom', test_mode: testMode },
     'Chaos: starting memory allocation to trigger OOM',
@@ -36,10 +35,7 @@ export function scheduleAllocations(): NodeJS.Timeout {
       );
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      logger.error(
-        { chaos_type: 'oom', error: message },
-        'Allocation failed',
-      );
+      logger.error({ chaos_type: 'oom', error: message }, 'Allocation failed');
       clearInterval(intervalId);
       process.exit(137);
     }

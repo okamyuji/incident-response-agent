@@ -10,10 +10,7 @@ export function sleep(ms: number): Promise<void> {
 
 export async function triggerLatency(res: Response): Promise<void> {
   const delayMs = MIN_DELAY_MS + Math.floor(Math.random() * MAX_EXTRA_DELAY_MS);
-  logger.warn(
-    { chaos_type: 'latency_spike', delay_ms: delayMs },
-    'Chaos: injecting latency spike',
-  );
+  logger.warn({ chaos_type: 'latency_spike', delay_ms: delayMs }, 'Chaos: injecting latency spike');
   await sleep(delayMs);
   res.status(200).json({
     message: 'Response delayed intentionally',

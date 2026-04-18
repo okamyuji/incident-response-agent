@@ -14,9 +14,7 @@ export function triggerErrorLogSpike(req: Request, res: Response): void {
   const startedAt = Date.now();
 
   for (let i = 0; i < ERROR_LINES; i++) {
-    const piiSnippet = includePii
-      ? PII_SAMPLES[i % PII_SAMPLES.length]
-      : 'no-pii';
+    const piiSnippet = includePii ? PII_SAMPLES[i % PII_SAMPLES.length] : 'no-pii';
     const err = new Error(`Synthetic error #${i} ${piiSnippet}`);
     logger.error(
       {

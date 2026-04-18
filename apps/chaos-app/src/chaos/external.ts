@@ -1,8 +1,7 @@
 import type { Response } from 'express';
 import { logger } from '@/logger.js';
 
-const UNRESOLVABLE_HOST =
-  'this-host-does-not-exist-for-chaos-validation.invalid';
+const UNRESOLVABLE_HOST = 'this-host-does-not-exist-for-chaos-validation.invalid';
 
 export async function triggerExternalFailure(res: Response): Promise<void> {
   const url = `https://${UNRESOLVABLE_HOST}/api/health`;
