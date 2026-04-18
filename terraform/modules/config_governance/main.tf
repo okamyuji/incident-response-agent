@@ -1,10 +1,6 @@
 variable "name_prefix" { type = string }
 variable "region" { type = string }
 variable "account_id" { type = string }
-variable "sns_topic_arn" {
-  type        = string
-  description = "SNS topic for Config compliance change notifications"
-}
 
 # AWS Config は region あたり 1 recorder のみ。既に別プロジェクトで有効化済みの場合は
 # apply が衝突するため、tfvars の enable フラグで制御できる構造にしている。
@@ -102,10 +98,15 @@ resource "aws_config_configuration_recorder" "this" {
   }
 }
 
+# ===== 重要なハマりポイント =====
+# delivery_channel に sns_topic_arn を設定すると、全 managed rule の初回評価結果が
+# NON_COMPLIANT リソース数だけ SNS に流れてメール爆撃になる（EC2_SECURITY_GROUP_ATTACHED_TO_ENI
+# だけで account 内の浮いた SG 全件が通知される）。dev では Console でダッシュボードを
+# 見れば十分なので SNS 連携は外す。通知が必要な場合は EventBridge rule で
+# high-severity のみフィルタリングすること。
 resource "aws_config_delivery_channel" "this" {
   name           = "${var.name_prefix}-delivery"
   s3_bucket_name = aws_s3_bucket.config.bucket
-  sns_topic_arn  = var.sns_topic_arn
 
   depends_on = [aws_config_configuration_recorder.this]
 }

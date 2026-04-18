@@ -198,3 +198,7 @@ output "ecr_repo_name" { value = aws_ecr_repository.chaos_app.name }
 output "ecs_cluster_name" { value = aws_ecs_cluster.chaos.name }
 output "ecs_service_name" { value = aws_ecs_service.chaos.name }
 output "task_sg_id" { value = aws_security_group.task.id }
+
+# observability 側の metric filter などが log group 作成完了を待てるよう、
+# 名前だけでなく resource 参照そのものを公開する。
+output "log_group_name" { value = aws_cloudwatch_log_group.chaos.name }

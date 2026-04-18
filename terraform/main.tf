@@ -42,7 +42,7 @@ module "observability" {
   name_prefix            = local.name_prefix
   region                 = var.region
   account_id             = data.aws_caller_identity.current.account_id
-  chaos_log_group_name   = "/ecs/${local.name_prefix}-chaos-app"
+  chaos_log_group_name   = module.chaos_app.log_group_name
   agt_log_group_name     = "/ecs/${local.name_prefix}-agt-sidecar"
   sns_topic_arn          = module.notifications.topic_arn
   alb_dimension          = module.chaos_app.alb_dimension
@@ -99,10 +99,9 @@ module "guardduty" {
 }
 
 module "config_governance" {
-  count         = var.enable_config ? 1 : 0
-  source        = "./modules/config_governance"
-  name_prefix   = local.name_prefix
-  region        = var.region
-  account_id    = data.aws_caller_identity.current.account_id
-  sns_topic_arn = module.notifications.topic_arn
+  count       = var.enable_config ? 1 : 0
+  source      = "./modules/config_governance"
+  name_prefix = local.name_prefix
+  region      = var.region
+  account_id  = data.aws_caller_identity.current.account_id
 }

@@ -87,3 +87,6 @@ __pycache__/
 
 # Claude Code superpowers artifacts (plans/specs はコミット対象外)
 docs/superpowers/
+
+# Claude Code ローカルランタイム
+.claude/
