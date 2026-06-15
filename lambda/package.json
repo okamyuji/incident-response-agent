@@ -30,12 +30,17 @@
     "endOfLine": "lf"
   },
   "dependencies": {
-    "@aws-sdk/client-bedrock-runtime": "3.1032.0",
-    "@aws-sdk/client-cloudwatch-logs": "3.1032.0",
-    "@aws-sdk/client-dynamodb": "3.1032.0",
-    "@aws-sdk/client-sns": "3.1032.0",
-    "@aws-sdk/lib-dynamodb": "3.1032.0",
+    "@aws-sdk/client-bedrock-runtime": "3.1068.0",
+    "@aws-sdk/client-cloudwatch-logs": "3.1068.0",
+    "@aws-sdk/client-dynamodb": "3.1068.0",
+    "@aws-sdk/client-sns": "3.1068.0",
+    "@aws-sdk/lib-dynamodb": "3.1068.0",
     "ulid": "3.0.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": ">=0.28.1"
+    }
   },
   "devDependencies": {
     "@types/aws-lambda": "8.10.161",
