@@ -47,13 +47,13 @@
     "@types/express": "5.0.6",
     "@types/node": "25.6.0",
     "@types/supertest": "7.2.0",
-    "@vitest/coverage-v8": "5.0.0",
+    "@vitest/coverage-v8": "5.0.5",
     "prettier": "3.8.3",
     "supertest": "7.2.2",
     "tsc-alias": "1.8.16",
     "tsx": "4.22.4",
     "typescript": "6.0.3",
     "vite": "^8.1.6",
-    "vitest": "5.0.0"
+    "vitest": "5.0.5"
   }
 }
