@@ -13,7 +13,7 @@ if [ ! -f "$ROOT/lambda/dist/triage-haiku.zip" ] \
   || [ ! -f "$ROOT/lambda/dist/investigate-sonnet.zip" ] \
   || [ ! -f "$ROOT/lambda/dist/rca-opus.zip" ]; then
   echo "  zips missing, rebuilding via pnpm package..."
-  cd "$ROOT/lambda" && pnpm install --frozen-lockfile=false >/dev/null && pnpm package >/dev/null
+  cd "$ROOT/lambda" && pnpm install --frozen-lockfile >/dev/null && pnpm package >/dev/null
 else
   echo "  zips present, skipping rebuild"
 fi
