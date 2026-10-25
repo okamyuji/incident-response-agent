@@ -3,9 +3,9 @@
 # exec format error を起こします。必ず --platform=linux/amd64 でビルドしてください。
 FROM node:24-alpine AS builder
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile=false
+RUN corepack enable
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY tsconfig.json ./
 COPY src ./src
 RUN pnpm build && pnpm prune --prod

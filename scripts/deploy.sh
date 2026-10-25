@@ -6,11 +6,11 @@ ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 REGION="${AWS_REGION:-us-east-1}"
 
 echo "[1/5] Building Lambda artifacts..."
-cd "$ROOT/lambda" && pnpm install --frozen-lockfile=false >/dev/null && pnpm package
+cd "$ROOT/lambda" && pnpm install --frozen-lockfile >/dev/null && pnpm package
 
 echo "[2/5] Building Node.js apps..."
-cd "$ROOT/apps/chaos-app" && pnpm install --frozen-lockfile=false >/dev/null && pnpm build
-cd "$ROOT/apps/agt-sidecar" && pnpm install --frozen-lockfile=false >/dev/null && pnpm build
+cd "$ROOT/apps/chaos-app" && pnpm install --frozen-lockfile >/dev/null && pnpm build
+cd "$ROOT/apps/agt-sidecar" && pnpm install --frozen-lockfile >/dev/null && pnpm build
 
 echo "[3/5] Running terraform apply to ensure ECR repos, VPC, DynamoDB etc. exist..."
 cd "$ROOT/terraform/envs/dev"
