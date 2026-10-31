@@ -10,8 +10,8 @@
   },
   "packageManager": "pnpm@11.20.0",
   "scripts": {
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
     "lint": "tsc --noEmit",
     "test": "vitest run --coverage",
     "test:watch": "vitest",
@@ -20,15 +20,6 @@
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "check": "pnpm format:check && pnpm lint && pnpm test"
-  },
-  "prettier": {
-    "semi": true,
-    "singleQuote": true,
-    "trailingComma": "all",
-    "printWidth": 100,
-    "tabWidth": 2,
-    "arrowParens": "always",
-    "endOfLine": "lf"
   },
   "dependencies": {
     "express": "5.2.1",
@@ -40,7 +31,7 @@
     "@types/node": "25.6.0",
     "@types/supertest": "7.2.0",
     "@vitest/coverage-v8": "5.0.5",
-    "prettier": "3.8.3",
+    "oxfmt": "^0.74.0",
     "supertest": "7.2.2",
     "tsc-alias": "1.8.16",
     "tsx": "4.22.4",
