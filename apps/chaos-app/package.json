@@ -22,19 +22,19 @@
     "check": "pnpm format:check && pnpm lint && pnpm test"
   },
   "dependencies": {
-    "express": "5.2.1",
-    "pino": "10.3.1",
+    "express": "5.3.0",
+    "pino": "10.4.0",
     "pino-http": "11.0.0"
   },
   "devDependencies": {
     "@types/express": "5.0.6",
     "@types/node": "25.6.0",
-    "@types/supertest": "7.2.0",
+    "@types/supertest": "7.2.1",
     "@vitest/coverage-v8": "5.0.5",
-    "oxfmt": "^0.74.0",
-    "supertest": "7.2.2",
-    "tsc-alias": "1.8.16",
-    "tsx": "4.22.4",
+    "oxfmt": "^0.75.0",
+    "supertest": "7.3.1",
+    "tsc-alias": "1.9.9",
+    "tsx": "4.23.15",
     "typescript": "6.0.3",
     "vite": "^8.3.5",
     "vite-tsconfig-paths": "6.1.1",
