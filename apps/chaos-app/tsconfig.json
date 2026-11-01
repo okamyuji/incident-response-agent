@@ -5,11 +5,8 @@
     "moduleResolution": "NodeNext",
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": ".",
-    // TypeScript 6 で baseUrl が deprecated 警告を出すため ignoreDeprecations が必要です（未設定だと tsc がエラーで止まる）
-    "ignoreDeprecations": "6.0",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
     "strict": true,
     "esModuleInterop": true,
