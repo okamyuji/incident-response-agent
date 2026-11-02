@@ -20,8 +20,8 @@ jobs:
       node-version: "24"
       working-directory: ${{ matrix.dir }}
       lint-command: run format:check
-      # build runs tsc (and the bundler), so it type-checks and catches build breaks
-      typecheck-command: run build
+      # lint is tsc --noEmit; lambda's build (tsup) does not type-check, so run both
+      typecheck-command: run lint && pnpm run build
       test-command: run test
 
   security:
