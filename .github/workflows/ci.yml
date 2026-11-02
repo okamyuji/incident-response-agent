@@ -1,0 +1,28 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  node:
+    strategy:
+      fail-fast: false
+      matrix:
+        dir: [apps/agt-sidecar, apps/chaos-app, lambda]
+    uses: okamyuji/reusable-workflows/.github/workflows/node-ci.yml@v1
+    with:
+      node-version: "24"
+      working-directory: ${{ matrix.dir }}
+      lint-command: run format:check
+      # lint is tsc --noEmit; lambda's build (tsup) does not type-check, so run both
+      typecheck-command: run lint && pnpm run build
+      test-command: run test
+
+  security:
+    uses: okamyuji/reusable-workflows/.github/workflows/security-scan.yml@v1
